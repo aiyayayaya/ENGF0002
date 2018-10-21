@@ -113,5 +113,5 @@ class Controller():
                 elapsed = t - last_time
                 last_time = t
                 fps = 60/elapsed
-                i = 0;
+                i = 0
         self.root.destroy()

@@ -1,0 +1,8 @@
+Bug 1
+Summary:
+the frog kept dying once it dies
+What happened:
+The location of the frog is not being resetted every time it dies. Therefore it would keep colliding with whatever that kills it.
+How to reproduce:
+On line 302 in fr_model.py:
+self.frog.reset_position()
