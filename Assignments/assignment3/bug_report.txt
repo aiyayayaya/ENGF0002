@@ -6,3 +6,12 @@ The location of the frog is not being resetted every time it dies. Therefore it 
 How to reproduce:
 On line 302 in fr_model.py:
 self.frog.reset_position()
+
+Bug 2
+Summary:
+The frog cannot land on the turtle
+What happened:
+the frog is not recognized as landing on the turtle
+How to reproduce:
+line 369: change on_long to on_log
+
