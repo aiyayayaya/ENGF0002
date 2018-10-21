@@ -55,7 +55,7 @@ class Turtle(RiverObject):
         return False
 
     def is_sunk(self):
-        return self.sunk;
+        return self.sunk
     
         
         
@@ -222,7 +222,7 @@ class Model():
                     else:
                         width = self.rand.randint(80,200 - self.level * 20)
                         object = Log(x, y, width, dir, speeds[row])
-                    self.logs.append(object);
+                    self.logs.append(object)
                     self.controller.register_river_object(object)
             y = y + GRID_SIZE
 
@@ -299,6 +299,7 @@ class Model():
             self.game_over()
         else:
             self.pause_start(1, "self.new_life()")
+            self.frog.reset_position()
 
     def pause_start(self, pause_time, unpause_function):
         self.paused = True
