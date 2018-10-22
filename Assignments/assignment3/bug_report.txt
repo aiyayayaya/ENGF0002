@@ -3,6 +3,8 @@ Summary:
 the frog kept dying once it dies
 What happened:
 The location of the frog is not being resetted every time it dies. Therefore it would keep colliding with whatever that kills it.
+What should happen:
+the frog should not die multiple times
 How to reproduce:
 On line 302 in fr_model.py:
 self.frog.reset_position()
@@ -12,6 +14,19 @@ Summary:
 The frog cannot land on the turtle
 What happened:
 the frog is not recognized as landing on the turtle
+What should happen:
+The frog should be recognized as on the log object.
 How to reproduce:
-line 369: change on_long to on_log
+line 369 in fr_model.py: change on_long to on_log
+
+Bug 3
+Summary:
+The time bar is not reduced at the beginning of the game
+What happened:
+The view of the time bar is set to be outside the canvas
+What should happen:
+the time bar should be shortened with time
+How to reproduce:
+line 169 in fr_view.py:
+change 20*remaining to 7*remaining
 

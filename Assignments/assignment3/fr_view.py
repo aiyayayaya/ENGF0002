@@ -166,7 +166,7 @@ class TimeView():
         remaining = self.end_time - time_now
         if remaining > 0:
             self.canvas.delete(self.bar)
-            self.bar = self.canvas.create_rectangle(CANVAS_WIDTH - 20*remaining - 100, GRID_SIZE*16.25,
+            self.bar = self.canvas.create_rectangle(CANVAS_WIDTH - 7*remaining - 100, GRID_SIZE*16.25,
                                                CANVAS_WIDTH - 100, GRID_SIZE*16.75, fill="green")
 
             
