@@ -30,3 +30,16 @@ How to reproduce:
 line 169 in fr_view.py:
 change 20*remaining to 7*remaining
 
+Bug4
+Summary:
+The frog cannot enter the leftmost home
+What happened:
+The coordinates of the homes are appended after the new coordinates are being calculated. Therefore the first coordinates are not recorded.
+What should happen:
+The frog should be recognized as entering the leftmost home
+How to reproduce:
+on line 264 in fr_model.py:
+move 
+x = x + GRID_SIZE + spacing
+after
+self.homes_occupied.append(False)

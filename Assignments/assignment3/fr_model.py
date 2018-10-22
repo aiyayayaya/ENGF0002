@@ -260,10 +260,10 @@ class Model():
         # the left of the home) + GRID_SIZE/2 (to get the centre of the
         # grid square)
         x = (spacing + GRID_SIZE)//2
-        for i in range(0,6):
-            x = x + GRID_SIZE + spacing
+        for i in range(0,5):
             self.homes_x.append(x)
             self.homes_occupied.append(False)
+            x = x + GRID_SIZE + spacing           
 
     def frog_is_home(self, home_num):
         assert(home_num >= 0 and home_num <= 4)
@@ -289,7 +289,7 @@ class Model():
         self.pause_start(1, "self.next_level()")
 
     def reset_homes(self):
-        for i in range(0,6):
+        for i in range(0,5):
             self.homes_occupied[i] = False
 
     def died(self):
