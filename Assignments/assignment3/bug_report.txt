@@ -43,3 +43,26 @@ move
 x = x + GRID_SIZE + spacing
 after
 self.homes_occupied.append(False)
+
+Bug 5
+Summary:
+The game cannot restart properly after game over.
+What happened:
+The game_running is set to be false after game over
+What should happen:
+game_running should be set True after restart
+How to reproduce:
+line330 add:
+self.game_running = True
+
+Bug 6 
+Summary:
+By moving down, the frog leaves the screen
+What happened:
+the frog keep moving out of the screen
+What should happen:
+the frog should die once it go down of the initial road
+How to reproduce:
+line 405 in fr_model.py:
+add "or y>= 16*GRID_SIZE:"
+

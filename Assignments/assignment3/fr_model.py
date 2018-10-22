@@ -327,6 +327,7 @@ class Model():
         self.score = 0
         self.reset_level()
         self.dont_update_speed = True
+        self.game_running = True
 
     def next_level(self):
         self.level = self.level + 1
@@ -401,7 +402,7 @@ class Model():
             return
         
         (x, y) = self.frog.get_position()
-        if x < 0 or x > CANVAS_WIDTH:
+        if x < 0 or x > CANVAS_WIDTH or y >= 16 * GRID_SIZE:
             self.died()
             return
 
