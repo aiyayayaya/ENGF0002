@@ -132,17 +132,18 @@ class Frog():
             
     ''' move due to user input '''
     def move(self, dir):
-        self.direction = dir
-        self.moving = True
-        self.start_move_time = time.time()
-        if dir == Direction.LEFT:
-            self.x = self.x - GRID_SIZE//2
-        elif dir == Direction.RIGHT:
-            self.x = self.x + GRID_SIZE//2
-        elif dir == Direction.UP:
-            self.y = self.y - GRID_SIZE//2
-        elif dir == Direction.DOWN:
-            self.y = self.y + GRID_SIZE//2
+        if self.moving != True:
+            self.direction = dir
+            self.moving = True
+            self.start_move_time = time.time()
+            if dir == Direction.LEFT:
+                self.x = self.x - GRID_SIZE//2
+            elif dir == Direction.RIGHT:
+                self.x = self.x + GRID_SIZE//2
+            elif dir == Direction.UP:
+                self.y = self.y - GRID_SIZE//2
+            elif dir == Direction.DOWN:
+                self.y = self.y + GRID_SIZE//2
 
     def finish_move(self):
         if (not self.moving) or (time.time() - self.start_move_time < 0.1):

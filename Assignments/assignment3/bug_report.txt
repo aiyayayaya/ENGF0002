@@ -66,3 +66,13 @@ How to reproduce:
 line 405 in fr_model.py:
 add "or y>= 16*GRID_SIZE:"
 
+Bug 7:
+Summary:
+By pressing onto a direction key non-stop, the frog can skip all those obstacles or even walk half a grid size
+What happened:
+before a moving action is completed, the frog move again so it is in between 2 roads and skipped the obstacles.
+What should happen:
+the frog should not move until it finishes its last move
+How to reproduce:
+line 135 in fr_model.py:
+add "if self.moving != True:" and move everything in move method under this if statement (+ indentation)
