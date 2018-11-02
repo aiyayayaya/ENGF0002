@@ -20,6 +20,7 @@ class View(Frame):
         self.thinking_tags = []
         self.last_move = 0
         self.is_thinking = False
+        self.paused = False
         #self.draw_move("X", 0, 0)
         #self.draw_move("O", 2, 1)
 
@@ -91,9 +92,16 @@ class View(Frame):
             return
         self.controller.click(x, y)
 
+    def pause(self, state):
+        if state:
+            self.paused = True
+        else:
+            self.paused = False
+            self.clear_thinking()
+
     def update(self):
         if (not self.is_thinking) and len(self.thinking_tags) > 0 \
-           and time.time() - self.last_move > 5:
+           and time.time() - self.last_move > 5 and (not self.paused):
             self.clear_thinking()
         self.frame.update()
 

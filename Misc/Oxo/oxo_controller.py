@@ -20,6 +20,10 @@ class Controller():
             self.model.x_plays(x, y)
         elif event.char == 'q':
             self.play_game = False
+        elif event.char == 'p':
+            self.view.pause(True)
+        elif event.char == 'u':
+            self.view.pause(False)
 
 
     def click(self, x, y):
