@@ -3,7 +3,7 @@
 from tkinter import *
 from tkinter import font
 import time
-from pa_settings import CANVAS_WIDTH, CANVAS_HEIGHT, GRID_SIZE, Direction
+from pa_settings import CANVAS_WIDTH, CANVAS_HEIGHT, GRID_SIZE, Direction, PARTIAL_UPDATE
 from pa_audio import Audio
 from pa_model import GhostMode
 
@@ -97,7 +97,7 @@ class PacmanView(GameObjectView):
             self.items.append(image)
             self.moveto(x, y)
 
-    def redraw(self, time_now):
+    def redraw(self, time_now, root):
         if time_now - self.__last_change > 0.1:
             self.__last_change = time_now
             self.__next_png()
@@ -106,6 +106,8 @@ class PacmanView(GameObjectView):
         else:
             x, y = self.pacman.position
             self.moveto(x, y)
+        if PARTIAL_UPDATE:
+            root.update_idletasks()
 
     def __next_png(self):
         if self.__dying:
@@ -127,7 +129,7 @@ class PacmanView(GameObjectView):
         self.__pngnum = -1
         self.__dying = True
         self.__last_change = 0
-        self.redraw(time.time())
+        #self.redraw(time.time())
             
 class DummyPacman():
     def __init__(self, x, y):
@@ -168,7 +170,7 @@ class GhostView(GameObjectView):
         self.moveto(x, y)
         self.__prev_mode = self.ghost.mode
 
-    def redraw(self, time_now):
+    def redraw(self, time_now, root):
         if self.ghost.direction == self.__prev_direction \
            and self.ghost.mode == self.__prev_mode:
             x, y = self.ghost.position
@@ -177,6 +179,8 @@ class GhostView(GameObjectView):
             self.cleanup()
             self.draw()
             self.__prev_direction = self.ghost.direction
+        if PARTIAL_UPDATE:
+            root.update_idletasks()
 
 class Food():
     def __init__(self, canvas, coords, food_png):
@@ -450,8 +454,8 @@ class View(Frame):
 
     def update(self, now):
         for view in self.__pacman_views:
-            view.redraw(now)
+            view.redraw(now, self.frame)
         for view in self.__ghost_views:
-            view.redraw(now)
+            view.redraw(now, self.frame)
         self.display_score()
 

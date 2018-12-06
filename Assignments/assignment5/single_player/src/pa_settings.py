@@ -7,6 +7,11 @@ CANVAS_HEIGHT = 800
 GRID_SIZE = 20
 STARTUP_LIVES = 5
 
+PARTIAL_UPDATE = False
+
+# debugging feature                                                                    
+DONT_DIE = False
+
 class Direction(IntEnum):
     UP = 0
     LEFT = 1
