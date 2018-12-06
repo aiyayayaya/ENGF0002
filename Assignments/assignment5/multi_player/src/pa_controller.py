@@ -3,7 +3,7 @@
 from tkinter import *
 from pa_model import Model, Status
 from pa_view import View
-from pa_settings import Direction
+from pa_settings import Direction, LOGTIME
 from pa_network import Network
 from sys import argv
 from getopt import getopt, GetoptError
@@ -280,11 +280,47 @@ class Controller():
         self.model.remote_status_update(status)
 
     def run(self):
+        t_count = 0
+        t = [0.0,0.0,0.0,0.0]
+        t_mean = [0.0,0.0,0.0,0.0]
+        t_max = [0.0,0.0,0.0,0.0]
         while self.running:
             now = time.time()
             self.net.check_for_messages(now)
+            if LOGTIME:
+                now2 = time.time()
             self.model.update(now)
+            if LOGTIME:
+                now3 = time.time()
             for view in self.views:
                 view.update(now)
+            if LOGTIME:
+                now4 = time.time()
             self.root.update()
+            if LOGTIME:
+                now5 = time.time()
+            if LOGTIME:
+                t[0] = now2 - now
+                t[1] = now3 - now2
+                t[2] = now4 - now3
+                t[3] = now5 - now4
+                for i in range(0,4):
+                    t_mean[i] += t[i]
+                    if t[i] > t_max[i]:
+                        t_max[i] = t[i]
+                t_count += 1
+                if t_count % 600 == 0:
+                    s = "Stats. Means: "
+                    for i in range(0,4):
+                        s += str(t_mean[i]/t_count)
+                        s += " "
+                    s += " Maxs: "
+                    for i in range(0,4):
+                        s += str(t_max[i])
+                        s += " "
+                    print(s)
+                    t_mean = [0.0,0.0,0.0,0.0]
+                    t_max = [0.0,0.0,0.0,0.0]
+                    t_count = 0
+                        
         self.root.destroy()

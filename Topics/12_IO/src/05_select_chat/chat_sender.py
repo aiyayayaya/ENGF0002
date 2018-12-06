@@ -37,7 +37,7 @@ sock = client(sock, "127.0.0.1", 1234)
 close_conn = False
 while close_conn == False:
     try:
-        rd, wd, ed = select.select([sock, sys.stdin],[],[],0)
+        rd, wd, ed = select.select([sock, sys.stdin],[],[])
         if sys.stdin in rd:
             key_text = nonblocking_readline()
             if key_text != "":

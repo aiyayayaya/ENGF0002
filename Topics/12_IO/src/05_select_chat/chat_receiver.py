@@ -45,7 +45,7 @@ while True:
     while close_conn == False:
         try:
             # call select to find out if there's any data ready
-            rd, wd, ed = select.select([sock, sys.stdin],[],[],0)
+            rd, wd, ed = select.select([sock, sys.stdin],[],[])
             if sys.stdin in rd:
                 key_text = nonblocking_readline()
                 if key_text != "":

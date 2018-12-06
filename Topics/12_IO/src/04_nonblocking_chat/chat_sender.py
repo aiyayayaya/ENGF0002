@@ -58,7 +58,7 @@ while close_conn == False:
             net_text = received_bytes.decode('utf-8')
             print(">>", net_text)
     except BlockingIOError:
-        pass
+        sleep(0.1)
         
 print("End of input, closing connection")
 sock.close()

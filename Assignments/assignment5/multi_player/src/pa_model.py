@@ -3,7 +3,7 @@
 from random import *
 from enum import Enum
 import time
-from pa_settings import CANVAS_WIDTH, CANVAS_HEIGHT, GRID_SIZE, STARTUP_LIVES, DONT_DIE, Direction
+from pa_settings import CANVAS_WIDTH, CANVAS_HEIGHT, GRID_SIZE, STARTUP_LIVES, DONT_DIE, Direction, PAUSETIME, LOGTIME
 import sys
 
 speed = 0.0
@@ -43,7 +43,7 @@ class Status(Enum):
     AWAY_DYING = 5   # dying while on vacation
 
 class MovableObject():
-    def __init__(self, x, y, width, height, direction, speed, status):
+    def __init__(self, x, y, width, height, direction, speed, status, name):
         self.__x = x
         self.__y = y
         self.__start_position = (x, y)
@@ -54,6 +54,11 @@ class MovableObject():
         self.__frozen = False
         self.__original_speed = speed
         self.__status = status
+        self.__name = name
+
+    @property
+    def name(self):
+        return self.__name
 
     @property
     def size(self):
@@ -83,6 +88,24 @@ class MovableObject():
     @property
     def grid_position(self):
         return (int((self.__x + 0.5 * GRID_SIZE) //GRID_SIZE), int((self.__y + 0.5 * GRID_SIZE)//GRID_SIZE))
+
+    # we shouldn't need this; needing it is a sign of some other bug.
+    # This will hopefully allow that bug to be tracked down.
+    def fix_if_outside_grid(self, tag):
+        gx, gy = self.grid_position
+        if gx >= 0 and gy >= 0 and gx <= max_x and gy <= max_y:
+            return
+        print(tag, self.__name, "Outside grid at position", self.__x, self.__y, "grid position", gx, gy)
+        if gx < 0:
+            gx = 0
+        if gy < 0:
+            gy = 0
+        if gx > max_x:
+            gx = max_x
+        if gy > max_y:
+            gy = max_y
+        self.grid_position = gx, gy
+    
 
     @grid_position.setter
     def grid_position(self, value):
@@ -136,6 +159,7 @@ class MovableObject():
             self.__x = self.__x + self.move_speed * speed
             if self.__x // GRID_SIZE != prevx // GRID_SIZE:
                 if self.collides_with_wall(maze):
+                    self.position = prevx, prevy
                     self.recentre()
                     self.stop()
                     return True
@@ -143,6 +167,7 @@ class MovableObject():
             self.__x = self.__x - self.move_speed * speed
             if self.__x // GRID_SIZE != prevx // GRID_SIZE:
                 if self.collides_with_wall(maze):
+                    self.position = prevx, prevy
                     self.recentre()
                     self.stop()
                     return True
@@ -150,6 +175,7 @@ class MovableObject():
             self.__y = self.__y - self.move_speed * speed
             if self.__y // GRID_SIZE != prevy // GRID_SIZE:
                 if self.collides_with_wall(maze):
+                    self.position = prevx, prevy
                     self.recentre()
                     self.stop()
                     return True
@@ -157,9 +183,11 @@ class MovableObject():
             self.__y = self.__y + self.move_speed * speed
             if self.__y // GRID_SIZE != prevy // GRID_SIZE:
                 if self.collides_with_wall(maze):
+                    self.position = prevx, prevy
                     self.recentre()
                     self.stop()
                     return True
+        self.fix_if_outside_grid("move")
         return False
 
     def recentre(self):
@@ -203,10 +231,10 @@ class MovableObject():
             
 #logs and turtles are both river objects - they move and act mostly the same
 class Pacman(MovableObject):
-    def __init__(self, grid_x, grid_y, width, height, direction, speed, status):
+    def __init__(self, grid_x, grid_y, width, height, direction, speed, status, name):
         x = GRID_SIZE * grid_x
         y = GRID_SIZE * grid_y
-        MovableObject.__init__(self, x, y, width, height, direction, speed, status)
+        MovableObject.__init__(self, x, y, width, height, direction, speed, status, name)
         self.__previous_grid_position = self.grid_position
         self.__user_direction = Direction.NONE
 
@@ -297,7 +325,8 @@ class GhostMode(Enum):
 class Ghost(MovableObject):
     
     def __init__(self, x, y, width, height, direction, speed, ghostnum, maze, status):
-        MovableObject.__init__(self, x, y, width, height, direction, speed, status)
+        name = "Ghost" + str(ghostnum)
+        MovableObject.__init__(self, x, y, width, height, direction, speed, status, name)
         self.__ghostnum = ghostnum
         self.__maze = maze
         self.__status = status
@@ -376,15 +405,24 @@ class Ghost(MovableObject):
             s += "\n"
         print(s)
 
+    def get_current_dist(self, x, y, tag):
+        current_dist = 0
+        try:
+            current_dist = self.shortest_paths[y][x]
+        except IndexError as e:
+            print("ERROR: ", self.name, "outside grid?", e)
+            print("x, y =", x, y)
+            print("tag: ", tag)
+            print("position = ", self.position)
+            self.print_shortest_path()
+        return current_dist
+
     def aim_for_target(self, maze, choice):
         x, y = self.grid_position
-        if x < 0:
-            x = 0
-        elif x > max_x:
-            x = max_x
+        self.fix_if_outside_grid("aim_for_target")
         if not self.centred():
             return
-        current_dist = self.shortest_paths[y][x]
+        current_dist = self.get_current_dist(x, y, "1")
         if current_dist == 0:
             if self.mode == GhostMode.EYES:
                 self.mode = GhostMode.CHASE
@@ -394,7 +432,7 @@ class Ghost(MovableObject):
                 self.shortest_paths = self.__maze.shortest_path(1, 1)
             else:
                 self.shortest_paths = self.__maze.shortest_path(self.grid_target_x, self.grid_target_y)
-        current_dist = self.shortest_paths[y][x]
+        current_dist = self.get_current_dist(x, y, "2")
         neighbours = ((x, y-1), (x-1, y), (x+1, y), (x, y+1))
         olddir = self.direction
         directions = (Direction.UP, Direction.LEFT, Direction.RIGHT, Direction.DOWN)
@@ -404,7 +442,7 @@ class Ghost(MovableObject):
             if nx < 0 or nx > max_x or ny < 0 or ny > max_y:
                 neighbour_dist = -1  # can happen near tunnel
             else:
-                neighbour_dist = self.shortest_paths[ny][nx]
+                neighbour_dist = self.get_current_dist(nx, ny, "3")
             if self.__mode == GhostMode.FRIGHTEN:
                 # run away, run away!
                 if neighbour_dist >= 0 and neighbour_dist > current_dist:
@@ -731,7 +769,7 @@ class Model():
         self.remote_ghosts = []  # ghosts on remote machine, controlled by remote machine 
         self.create_ghosts()
         self.pacman = Pacman(14,17, GRID_SIZE, GRID_SIZE,
-                             Direction.LEFT, 1, Status.LOCAL)
+                             Direction.LEFT, 1, Status.LOCAL, "Pacman1")
         self.foreign_pacman = None
         self.movables.append(self.pacman)
         controller.register_pacman(self.pacman)
@@ -1070,7 +1108,7 @@ class Model():
     ''' the pacman from the remote system came through the tunnel and is now on our screen'''
     def foreign_pacman_arrived(self):
         self.foreign_pacman = Pacman(0,17, GRID_SIZE, GRID_SIZE,
-                                    Direction.UP, 1, Status.FOREIGN)
+                                     Direction.UP, 1, Status.FOREIGN, "Pacman2")
         self.movables.append(self.foreign_pacman)
         self.controller.register_pacman(self.foreign_pacman)
 
@@ -1149,6 +1187,7 @@ class Model():
             else:
                 # use an EWMA to damp speed changes and avoid excessive jitter               
                 speed = speed * 0.9 + 0.1 * 12 * elapsed
+        time.sleep(PAUSETIME)
 
     def foreign_eat(self, pos, is_powerpill):
         # A foreign pacmac on our screen ate food or powerpill

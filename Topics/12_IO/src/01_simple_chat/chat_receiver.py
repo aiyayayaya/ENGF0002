@@ -36,6 +36,8 @@ listener_sock = get_sock()
 sock = server(listener_sock, 1234)
 
 while True:
+    print("here1")
     encoded_text = sock.recv(1024)
+    print("here2")
     text = encoded_text.decode()
     print(text)

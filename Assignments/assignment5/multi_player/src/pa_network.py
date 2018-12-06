@@ -88,17 +88,14 @@ class Network():
         if not rd:
             pass
         else:
-            #print("got a message")
             recv_bytes = self.__sock.recv(10000)
             self.__recv_buf += recv_bytes  # concat onto whatever is left from prev receive
             recv_len = int.from_bytes(self.__recv_buf[0:2], byteorder='big')
-            #print("len: ", recv_len, "recvlen:", len(self.__recv_buf))
             while (len(self.__recv_buf) - 2 >= recv_len):
                 self.parse_msg(self.__recv_buf[2:recv_len+2])
                 self.__recv_buf = self.__recv_buf[recv_len+2:]
                 if len(self.__recv_buf) > 2:
                     recv_len = int.from_bytes(self.__recv_buf[0:2], byteorder='big')
-                    #print("len: ", recv_len, "recvlen:", len(self.__recv_buf))
                     
         
     def parse_msg(self, buf):
